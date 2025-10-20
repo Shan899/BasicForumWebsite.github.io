@@ -38,7 +38,7 @@
 <body>
     <h2>Create an Account</h2>
     <form id="registerForm">
-        <input type="username" id="username" placeholder="Username" required />
+        <input type="text" id="username" placeholder="Username" required />
         <input type="email" id="email" placeholder="Email" required />
         <input type="password" id="password" placeholder="Password" required />
         <button type="submit">Register</button>
@@ -49,20 +49,40 @@
     <script>
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            console.log("Attempting to register:", { username, email });
+
+            const { data, error } = await client.auth.signUp({ email, password });
+
             if (error) {
+                console.error("Auth signup error:", error);
                 alert(error.message);
-            } else {
-                alert('Registration successful! Please check your email for verification.');
-                window.location.href = 'login.html';
+                return;
             }
+
+            if (data.user) {
+                const { error: insertError } = await client
+                    .from('profiles')
+                    .insert([{ id: data.user.id, username }]);
+
+                if (insertError) {
+                    console.error('Profile insert error:', insertError);
+                    alert('Error saving username: ' + insertError.message);
+                    return;
+                }
+            }
+
+            alert('Registration successful! Please check your email for verification.');
+            window.location.href = 'login.html';
         });
     </script>
 </body>
