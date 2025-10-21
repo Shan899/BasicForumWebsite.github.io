@@ -7,22 +7,36 @@
     <title>Register</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 100px;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #f8f9fa;
+        }
+
+        h2 {
+            margin-bottom: 20px;
         }
 
         form {
             display: flex;
             flex-direction: column;
             width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         input {
-            margin: 5px 0;
-            padding: 8px;
+            margin: 8px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
         button {
@@ -30,7 +44,22 @@
             background: #007bff;
             color: white;
             border: none;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+
+        a {
+            color: #007bff;
         }
     </style>
 </head>
@@ -46,43 +75,53 @@
     <p>Already have an account? <a href="login.html">Login here</a></p>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
 
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        const form = document.getElementById("registerForm");
+
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
 
-            console.log("Attempting to register:", { username, email });
-
-            const { data, error } = await client.auth.signUp({ email, password });
-
-            if (error) {
-                console.error("Auth signup error:", error);
-                alert(error.message);
+            if (!username || !email || !password) {
+                alert("Please fill in all fields.");
                 return;
             }
 
-            if (data.user) {
-                const { error: insertError } = await client
-                    .from('profiles')
-                    .insert([{ id: data.user.id, username }]);
+            const { data, error } = await supabase.auth.signUp({ email, password });
 
-                if (insertError) {
-                    console.error('Profile insert error:', insertError);
-                    alert('Error saving username: ' + insertError.message);
-                    return;
-                }
+            if (error) {
+                console.error("Sign-up error:", error);
+                alert("Sign-up failed: " + error.message);
+                return;
             }
 
-            alert('Registration successful! Please check your email for verification.');
-            window.location.href = 'login.html';
+            const user = data.user;
+            if (!user) {
+                alert("Unexpected error: No user returned from Supabase.");
+                return;
+            }
+
+            const { error: insertError } = await supabase
+                .from("profiles")
+                .insert([{ id: user.id, username }]);
+
+            if (insertError) {
+                console.error("Profile insert error:", insertError);
+                alert("Error saving username: " + insertError.message);
+                return;
+            }
+
+            alert("Registration successful! Please check your email for verification.");
+            window.location.href = "login.html";
         });
     </script>
 </body>
