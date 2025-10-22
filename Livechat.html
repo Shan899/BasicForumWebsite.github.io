@@ -15,7 +15,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            /* Background from the settings theme */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -44,7 +43,6 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: #4CAF50;
-            /* Green logo */
         }
 
         nav ul {
@@ -103,7 +101,6 @@
             overflow: hidden;
         }
 
-        /* --- Chat-Specific Styles --- */
         .chat-header {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
@@ -176,7 +173,6 @@
             align-self: flex-end;
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
-            /* Sharp corner at the bottom edge */
             border-bottom-right-radius: 2px;
         }
 
@@ -184,7 +180,6 @@
             align-self: flex-start;
             background-color: #e0e0e0;
             color: #333;
-            /* Sharp corner at the bottom edge */
             border-bottom-left-radius: 2px;
         }
 
@@ -260,7 +255,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ⚠️ WARNING: REPLACE THESE WITH YOUR ACTUAL SUPABASE PROJECT DETAILS ⚠️
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -269,20 +263,14 @@
         const messageForm = document.getElementById('messageForm');
         const messageInput = document.getElementById('messageInput');
         let currentUserId = null;
-        const profilesCache = new Map(); // Cache user profiles
-        const SCROLL_THRESHOLD = 50; // Pixels from bottom to maintain auto-scroll
+        const profilesCache = new Map();
+        const SCROLL_THRESHOLD = 50;
 
-        /**
-         * Checks if the user is currently scrolled to the bottom of the chat.
-         */
         function isScrolledToBottom() {
             const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
             return (scrollHeight - scrollTop - clientHeight) < SCROLL_THRESHOLD;
         }
 
-        /**
-         * Fetches a user's profile (username) and caches it for efficiency.
-         */
         async function getProfile(userId) {
             if (profilesCache.has(userId)) {
                 return profilesCache.get(userId);
@@ -302,14 +290,9 @@
             return { username: 'User (' + userId.substring(0, 4) + '...)', avatar_url: null };
         }
 
-        /**
-         * Renders a single message element.
-         */
         async function createMessageElement(message) {
-            // Check scroll position before adding new message
             const shouldScroll = isScrolledToBottom();
 
-            // IMPORTANT: Ensure these column names (user_id, content, created_at) match your Supabase table schema
             const isSent = message.user_id === currentUserId;
             const profile = await getProfile(message.user_id);
 
@@ -320,24 +303,19 @@
             const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             messageEl.innerHTML = `
-                <span class="message-username">${profile.username}</span>
+                <span class="message-username">${profile.username}</span> 
                 <p>${message.content}</p>
                 <span class="message-meta">${timeString}</span>
             `;
 
             messagesContainer.appendChild(messageEl);
 
-            // Scroll to bottom only if the user was near the bottom before the message arrived
             if (shouldScroll) {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }
 
-        /**
-         * Loads the last 50 messages on initial page load.
-         */
         async function loadInitialMessages() {
-            // Fetch messages, ordered by creation time
             const { data: messages, error } = await client
                 .from('messages')
                 .select('*')
@@ -350,12 +328,9 @@
             }
 
             messages.forEach(createMessageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Initial scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        /**
-         * Subscribes to realtime insertions. This is what handles instant display.
-         */
         function subscribeToNewMessages() {
             client
                 .channel('global-chat-room')
@@ -363,7 +338,6 @@
                     'postgres_changes',
                     { event: 'INSERT', schema: 'public', table: 'messages' },
                     (payload) => {
-                        // THIS LINE IS CRUCIAL: payload.new contains the inserted row object
                         createMessageElement(payload.new);
                     }
                 )
@@ -397,6 +371,12 @@
             }
 
             currentUserId = user.id;
+
+            const chatLink = document.querySelector('nav a[href="dashboard.html"]');
+            if (chatLink) chatLink.href = 'livechat.html';
+
+            const settingsLink = document.querySelector('nav a[href="#settings"]');
+            if (settingsLink) settingsLink.href = 'settings.html';
 
             await loadInitialMessages();
 
