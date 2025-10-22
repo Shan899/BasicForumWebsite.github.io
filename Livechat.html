@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Chat - BasicForum</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Background from the settings theme */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            /* Green logo */
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        #logoutBtn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        #logoutBtn:hover {
+            transform: translateY(-2px);
+        }
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* --- Chat-Specific Styles --- */
+        .chat-header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f7f7f7;
+            scroll-behavior: smooth;
+        }
+
+        .message-form {
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        #sendBtn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #sendBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            /* Sharp corner at the bottom edge */
+            border-bottom-right-radius: 2px;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: #333;
+            /* Sharp corner at the bottom edge */
+            border-bottom-left-radius: 2px;
+        }
+
+        .message-meta {
+            font-size: 0.75rem;
+            margin-top: 5px;
+            opacity: 0.8;
+            text-align: right;
+        }
+
+        .received .message-meta {
+            text-align: left;
+        }
+
+        .message-username {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: #666;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 0 1rem;
+            }
+
+            .chat-container {
+                height: 80vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">BasicForum</div>
+            <nav>
+                <ul>
+                    <li><a href="livechat.html" class="active"><i class="fas fa-comments"></i> Live Chat</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="chat-container">
+            <div class="chat-header">
+                Global Live Chat 🌐
+            </div>
+            <div id="messages">
+            </div>
+            <form id="messageForm" class="message-form">
+                <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+                <button type="submit" id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 BasicForum - All rights reserved | <a href="#">Privacy Policy</a> | <a href="#">Terms of
+                Service</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ⚠️ WARNING: REPLACE THESE WITH YOUR ACTUAL SUPABASE PROJECT DETAILS ⚠️
+        const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const messagesContainer = document.getElementById('messages');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        let currentUserId = null;
+        const profilesCache = new Map(); // Cache user profiles
+        const SCROLL_THRESHOLD = 50; // Pixels from bottom to maintain auto-scroll
+
+        /**
+         * Checks if the user is currently scrolled to the bottom of the chat.
+         */
+        function isScrolledToBottom() {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+            return (scrollHeight - scrollTop - clientHeight) < SCROLL_THRESHOLD;
+        }
+
+        /**
+         * Fetches a user's profile (username) and caches it for efficiency.
+         */
+        async function getProfile(userId) {
+            if (profilesCache.has(userId)) {
+                return profilesCache.get(userId);
+            }
+
+            const { data, error } = await client
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', userId)
+                .single();
+
+            if (data) {
+                profilesCache.set(userId, data);
+                return data;
+            }
+
+            return { username: 'User (' + userId.substring(0, 4) + '...)', avatar_url: null };
+        }
+
+        /**
+         * Renders a single message element.
+         */
+        async function createMessageElement(message) {
+            // Check scroll position before adding new message
+            const shouldScroll = isScrolledToBottom();
+
+            // IMPORTANT: Ensure these column names (user_id, content, created_at) match your Supabase table schema
+            const isSent = message.user_id === currentUserId;
+            const profile = await getProfile(message.user_id);
+
+            const messageEl = document.createElement('div');
+            messageEl.classList.add('message', isSent ? 'sent' : 'received');
+
+            const date = new Date(message.created_at);
+            const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            messageEl.innerHTML = `
+                <span class="message-username">${profile.username}</span>
+                <p>${message.content}</p>
+                <span class="message-meta">${timeString}</span>
+            `;
+
+            messagesContainer.appendChild(messageEl);
+
+            // Scroll to bottom only if the user was near the bottom before the message arrived
+            if (shouldScroll) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        /**
+         * Loads the last 50 messages on initial page load.
+         */
+        async function loadInitialMessages() {
+            // Fetch messages, ordered by creation time
+            const { data: messages, error } = await client
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: true })
+                .limit(50);
+
+            if (error) {
+                console.error('Error loading initial messages:', error.message);
+                return;
+            }
+
+            messages.forEach(createMessageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Initial scroll to bottom
+        }
+
+        /**
+         * Subscribes to realtime insertions. This is what handles instant display.
+         */
+        function subscribeToNewMessages() {
+            client
+                .channel('global-chat-room')
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'messages' },
+                    (payload) => {
+                        // THIS LINE IS CRUCIAL: payload.new contains the inserted row object
+                        createMessageElement(payload.new);
+                    }
+                )
+                .subscribe();
+        }
+
+        async function handleNewMessage(e) {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+
+            if (!content || !currentUserId) return;
+
+            const { error } = await client
+                .from('messages')
+                .insert({ user_id: currentUserId, content: content });
+
+            if (error) {
+                console.error('Error sending message:', error.message);
+                alert('Failed to send message. Check your RLS policy: ' + error.message);
+            } else {
+                messageInput.value = '';
+            }
+        }
+
+        async function init() {
+            const { data: { user } } = await client.auth.getUser();
+
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUserId = user.id;
+
+            await loadInitialMessages();
+
+            subscribeToNewMessages();
+
+            messageForm.addEventListener('submit', handleNewMessage);
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await client.auth.signOut();
+            alert("You have been logged out!");
+            window.location.href = 'login.html';
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
