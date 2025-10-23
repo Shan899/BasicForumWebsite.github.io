@@ -99,6 +99,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            position: relative;
         }
 
         .chat-header {
@@ -144,7 +145,8 @@
             border-color: #4CAF50;
         }
 
-        #sendBtn {
+        #sendBtn,
+        #emojiBtn {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             border: none;
@@ -153,9 +155,16 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
+            line-height: 1;
         }
 
-        #sendBtn:hover {
+        #emojiBtn {
+            font-size: 1.5rem;
+            padding: 0.75rem 1rem;
+        }
+
+        #sendBtn:hover,
+        #emojiBtn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
         }
@@ -200,6 +209,81 @@
             margin-bottom: 2px;
         }
 
+        .message a {
+            text-decoration: underline;
+        }
+
+        .sent a {
+            color: #c8e6c9;
+        }
+
+        .received a {
+            color: #4CAF50;
+        }
+
+        #emojiPicker {
+            position: absolute;
+            bottom: 80px;
+            right: 10px;
+            width: 300px;
+            height: 320px;
+            /* Increased height for categories */
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            display: none;
+            z-index: 10;
+            flex-direction: column;
+        }
+
+        /* New category styles */
+        .category-tabs {
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+
+        .category-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            opacity: 0.5;
+            transition: opacity 0.2s, color 0.2s;
+        }
+
+        .category-btn.active {
+            opacity: 1;
+            color: #4CAF50;
+        }
+
+        #emojiGrid {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .emoji-item {
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.1s;
+        }
+
+        .emoji-item:hover {
+            background: #f0f0f0;
+        }
+
         footer {
             text-align: center;
             padding: 2rem;
@@ -241,8 +325,22 @@
             </div>
             <div id="messages">
             </div>
+
+            <div id="emojiPicker">
+                <div class="category-tabs" id="categoryTabs">
+                    <button class="category-btn active" data-category="smileys">😀</button>
+                    <button class="category-btn" data-category="people">🧑</button>
+                    <button class="category-btn" data-category="animals">🐾</button>
+                    <button class="category-btn" data-category="food">🍔</button>
+                    <button class="category-btn" data-category="symbols">💡</button>
+                </div>
+                <div class="emoji-grid" id="emojiGrid">
+                </div>
+            </div>
+
             <form id="messageForm" class="message-form">
                 <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+                <button type="button" id="emojiBtn">😊</button>
                 <button type="submit" id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
             </form>
         </div>
@@ -262,6 +360,10 @@
         const messagesContainer = document.getElementById('messages');
         const messageForm = document.getElementById('messageForm');
         const messageInput = document.getElementById('messageInput');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const emojiGrid = document.getElementById('emojiGrid');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const categoryTabs = document.getElementById('categoryTabs');
         let currentUserId = null;
         const profilesCache = new Map();
         const SCROLL_THRESHOLD = 50;
@@ -290,6 +392,13 @@
             return { username: 'User (' + userId.substring(0, 4) + '...)', avatar_url: null };
         }
 
+        function formatContentWithLinks(text) {
+            const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            return text.replace(urlRegex, (url) => {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
+        }
+
         async function createMessageElement(message) {
             const shouldScroll = isScrolledToBottom();
 
@@ -302,9 +411,11 @@
             const date = new Date(message.created_at);
             const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+            const formattedContent = formatContentWithLinks(message.content);
+
             messageEl.innerHTML = `
                 <span class="message-username">${profile.username}</span> 
-                <p>${message.content}</p>
+                <p>${formattedContent}</p>
                 <span class="message-meta">${timeString}</span>
             `;
 
@@ -362,6 +473,70 @@
             }
         }
 
+        const emojiCategories = {
+            smileys: ['😀', '😂', '😍', '🤔', '😎', '😭', '🥳', '🤯', '😊', '😁', '🤣', '😅', '😇', '😉', '😌', '😘', '😋', '😜', '🤪', '🤨', '🧐', '🤓', '😷', '🥵', '🥶', '😵', '😴', '💩', '😈', '💀'],
+            people: ['👋', '🤚', '👍', '👎', '❤️', '🙏', '🧑', '👨', '👩', '👶', '👴', '👵', '👮', '👷', '🧑‍⚕️', '🧑‍🎓', '🧑‍🏫', '🧑‍🌾', '🧑‍🍳', '🧑‍🏭', '🧑‍💻', '💪', '🤝', '👂', '👃', '🦶', '👀', '🧠'],
+            animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦉', '🦆', '🦋', '🐳', '🐬', '🐠', '🦀', '🦂', '🕷️', '🐍', '🦎', '🐘', '🦒'],
+            food: ['🍎', '🍊', '🍋', '🍉', '🍇', '🍓', '🍕', '🍔', '🍟', '🌭', '🌮', '🥪', '🍜', '🍲', '🍣', '🍤', '🍙', '🍚', '🍰', '🍪', '🍩', '☕', '🥛', '🍻', '🥂', '🍾', '🥝', '🍍', '🥑', '🥦'],
+            symbols: ['💯', '🔥', '🚀', '🌟', '💡', '🔔', '🎉', '🎁', '🎈', '💰', '🔑', '🔗', '🔒', '🔓', '✅', '❌', '❓', '❕', '➕', '➖', '➗', '⏰', '⏳', '💡', '🔨', '🛠️', '⚙️', '🛡️', '⚔️', '💉']
+        };
+
+        let activeCategory = 'smileys';
+
+        function populateEmojiPicker(category) {
+            emojiGrid.innerHTML = '';
+            const emojis = emojiCategories[category] || emojiCategories.smileys;
+
+            emojis.forEach(emoji => {
+                const item = document.createElement('span');
+                item.className = 'emoji-item';
+                item.textContent = emoji;
+                item.addEventListener('click', () => selectEmoji(emoji));
+                emojiGrid.appendChild(item);
+            });
+            activeCategory = category;
+        }
+
+        function toggleEmojiPicker() {
+            emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex';
+            if (emojiPicker.style.display === 'flex') {
+                messageInput.focus();
+                // Ensure the initial category is loaded when the picker opens
+                populateEmojiPicker(activeCategory);
+                // Also set the active button class
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === activeCategory) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        function selectEmoji(emoji) {
+            const start = messageInput.selectionStart;
+            const end = messageInput.selectionEnd;
+            const value = messageInput.value;
+
+            messageInput.value = value.substring(0, start) + emoji + value.substring(end);
+
+            const newCursorPos = start + emoji.length;
+            messageInput.selectionStart = newCursorPos;
+            messageInput.selectionEnd = newCursorPos;
+            messageInput.focus();
+        }
+
+        function handleCategoryClick(event) {
+            const button = event.target.closest('.category-btn');
+            if (!button) return;
+
+            const category = button.dataset.category;
+            populateEmojiPicker(category);
+
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
         async function init() {
             const { data: { user } } = await client.auth.getUser();
 
@@ -379,10 +554,17 @@
             if (settingsLink) settingsLink.href = 'settings.html';
 
             await loadInitialMessages();
-
             subscribeToNewMessages();
 
             messageForm.addEventListener('submit', handleNewMessage);
+            emojiBtn.addEventListener('click', toggleEmojiPicker);
+            categoryTabs.addEventListener('click', handleCategoryClick);
+
+            document.addEventListener('click', (event) => {
+                if (!emojiPicker.contains(event.target) && event.target !== emojiBtn && !messageInput.contains(event.target) && !categoryTabs.contains(event.target)) {
+                    emojiPicker.style.display = 'none';
+                }
+            });
         }
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
