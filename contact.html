@@ -28,20 +28,29 @@
             display: block;
             margin: 10px 0 5px;
         }
-        input[type="text"], input[type="email"], textarea {
-            width: 100%;
+        input[type="text"], input[type="email"] {
+            width: 50%;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 10px;}
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            resize: vertical;
+
         }
         button {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background-color: #5cb85c;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 40px;
             cursor: pointer;
         }
         button:hover {
@@ -54,13 +63,13 @@
     <div class="container">
         <h1>Contact Us</h1>
         <form action="/submit-contact" method="post">
-            <label for="name">Name:</label>
+            <label for="name">Full Name:</label>
             <input type="text" id="name" name="name" required>
 
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
-            <label for="message">In you own words, describe your concerns or issues:</label>
+            <label for="message">Please describe your concerns or issues:</label>
             <textarea id="message" name="message" rows="5" required></textarea>
 
             <button type="submit">Send Message</button>
