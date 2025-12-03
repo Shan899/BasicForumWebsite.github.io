@@ -49,38 +49,44 @@
             margin: 0;
             display: flex;
             gap: 2rem;
+            display: flex;
+            align-items: center;
         }
-
+        
         nav a {
             color: #333;
             text-decoration: none;
             font-weight: 500;
             padding: 0.5rem 1rem;
             border-radius: 25px;
-            transition: all 0.3s ease, transform 0.2s ease;
-            line-height: 2.5;
+            transition: all 0.3s ease;
         }
 
         nav a:hover,
         nav a.active {
             background: #4CAF50;
             color: white;
-            transform: translateY(-2px);
         }
 
         #logoutBtn {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
+            background: transparent;
+            color: #333;
             border: none;
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 25px;
             cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s ease;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
         }
 
         #logoutBtn:hover {
-            transform: translateY(-2px);
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: none;
+            transform: none;
         }
 
         main {
@@ -398,22 +404,6 @@
             }
         }
 
-    #liveChatBtn,
-    #settingsBtn {
-    background: linear-gradient(45deg, #4CAF50, #45a049);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s ease;
-    }
-
-    #liveChatBtn:hover,
-    #settingsBtn:hover {
-    transform: translateY(-2px);
-    }
 
     </style>
 </head>
@@ -424,15 +414,9 @@
         <a href="Forum.html" class="logo">BasicForum</a>
         <nav>
             <ul>
-                <li>
-                <button id="liveChatBtn"><i class="fas fa-comments"></i> Live Chat</button>
-                </li>
-                <li>
-                <button id="settingsBtn"><i class="fas fa-cog"></i> Settings</button>
-                </li>
-                <li>
-                <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </li>
+                <li><a href="livechat.html"><i class="fas fa-comments"></i> Live Chat</a></li>
+                <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
     </div>
@@ -506,11 +490,11 @@
                             <div class="stat-label">Posts</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">89</div>
+                            <div class="stat-number">273</div>
                             <div class="stat-label">Followers</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">234</div>
+                            <div class="stat-number">67</div>
                             <div class="stat-label">Following</div>
                         </div>
                     </div>
@@ -646,7 +630,8 @@
             }
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             await client.auth.signOut();
             alert("You have been logged out!");
             window.location.href = 'login.html';
