@@ -73,6 +73,27 @@
             color: white;
         }
 
+        #logoutBtn {
+            background: transparent;
+            color: #333;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        #logoutBtn:hover {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: none;
+            transform: none;
+        }
+
         main {
             max-width: 1000px;
             margin: 2rem auto;
@@ -177,6 +198,7 @@
                 <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
                 <li><a href="topics.html">Topics</a></li>
                 <li><a href=" contact.html" target="_blank">Contact</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
     </div>
@@ -185,7 +207,7 @@
 <main>
     <div class="hero">
         <h1>Welcome to BasicForum</h1>
-        <p>A place where you discuss anything.</p>
+        <p>A place where you can discuss anything.</p>
     </div>
 
     <div class="forum-grid">
@@ -216,7 +238,7 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Återanvänder projektets Supabase-uppgifter (som är i settings.html)
+        // Skapar en Supabase-klient för att få åtkomst till databasen med en API-nyckel.
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -284,10 +306,10 @@
                 console.log('loadThreads: got', threads ? threads.length : 0, 'threads');
                 (threads || []).forEach(thread => displayThread(thread));
                 
-                // Update thread count
+                // Uppdaterar antalet threads
                 document.getElementById('threadCount').textContent = threads ? threads.length : 0;
                 
-                // Count total comments
+                // Räknar totala antalet kommentarer
                 if (threads && threads.length > 0) {
                     const { count: commentCount } = await client
                         .from('comments')
@@ -347,7 +369,7 @@
             }
         }
 
-        // visar en thread i UI:t
+        // visar en thread i UI:n
         function displayThread(thread) {
             if (!thread) {
                 console.warn('displayThread called with null/undefined thread, skipping');
@@ -398,7 +420,7 @@
 
             document.getElementById('threadsContainer').appendChild(threadEl);
 
-            // eventuellt laddar befintliga kommentarer
+            // laddar befintliga kommentarer
             loadComments(thread.id, commentsDiv).catch(console.error);
         }
 
@@ -491,6 +513,13 @@
         initializeAuth().then(() => {
             console.log('initializeAuth complete, currentUsername =', currentUsername);
             loadThreads().catch(ex => console.error('loadThreads top-level error:', ex));
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await client.auth.signOut();
+            alert("You have been logged out!");
+            window.location.href = 'login.html';
         });
     </script>
 </body>
