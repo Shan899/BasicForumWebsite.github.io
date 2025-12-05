@@ -417,14 +417,16 @@
             messageEl.classList.add('message', isSent ? 'sent' : 'received');
 
             const date = new Date(message.created_at);
+            const dateString = date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
             const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateTimeString = `${dateString} ${timeString}`;
 
             const formattedContent = formatContentWithLinks(message.content);
 
             messageEl.innerHTML = `
                 <span class="message-username">${profile.username}</span> 
                 <p>${formattedContent}</p>
-                <span class="message-meta">${timeString}</span>
+                <span class="message-meta">${dateTimeString}</span>
             `;
 
             messagesContainer.appendChild(messageEl);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum Mainpage</title>
+    <title>Mainpage - BasicForum</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -50,6 +50,12 @@
             margin: 0;
             display: flex;
             gap: 2rem;
+            align-items: center;
+        }
+
+        nav ul li {
+            display: flex;
+            align-items: center;
         }
 
         nav a {
@@ -68,11 +74,59 @@
         }
 
         main {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 2rem auto;
             padding: 0 2rem;
             flex-grow: 1;
             width: 100%;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .hero p {
+            color: #666;
+            font-size: 1.1rem;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .forum-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .forum-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .forum-sidebar h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .forum-main {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         section {
@@ -119,27 +173,325 @@
         <a href="Forum.html" class="logo">BasicForum</a>
         <nav>
             <ul>
-                <li><a href="settings.html">Settings</a></li>
-                <li><a href="#">Topics</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="livechat.html"><i class="fas fa-comments"></i> Live Chat</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="topics.html">Topics</a></li>
+                <li><a href=" contact.html" target="_blank">Contact</a></li>
             </ul>
         </nav>
     </div>
 </header>
 
 <main>
-    <section>
-        <h2>Welcome to Forum Mainpage!</h2>
-        <p>Latest Topics:</p>
-        <ul>
-            <li><a href="#">Topic 1: Discussion on Current Trends</a></li>
-            <li><a href="#">Topic 2: Technology Advancements</a></li>
-            <li><a href="#">Topic 3: Healthy Living Tips</a></li>
-        </ul>
-</main>
+    <div class="hero">
+        <h1>Welcome to BasicForum</h1>
+        <p>A place where you discuss anything.</p>
+    </div>
+
+    <div class="forum-grid">
+        <div class="forum-sidebar">
+            <h3>Current Stats</h3>
+            <div style="color: #666; font-size: 0.95rem; line-height: 1.8;">
+                <p><strong style="color: #4CAF50;">Discussions:</strong> <span id="threadCount">0</span></p>
+                <p><strong style="color: #4CAF50;">Comments:</strong> <span id="commentCount">0</span></p>
+                <p><strong style="color: #4CAF50;">Active:</strong> Always</p>
+            </div>
+        </div>
+
+        <div class="forum-main">
+            <h2 style="margin-top: 0; color: #333;">Start a New Discussion</h2>
+            <input type="text" id="threadTitle" placeholder="Thread Title" required style="width:100%;padding:0.75rem;margin:0.5rem 0;border-radius:8px;border:1px solid #ddd;">
+            <textarea id="threadDescription" rows="4" placeholder="What would you like to discuss?" required style="width:100%;padding:0.75rem;margin:0.5rem 0;border-radius:8px;border:1px solid #ddd;"></textarea>
+            <button id="createThreadBtn" class="chat-button">Post Thread</button>
+        </div>
+    </div>
+
+    <section style="background: rgba(255, 255, 255, 0.95);">
+        <h2 style="color: #333; margin-top: 0;">Latest Discussions</h2>
+        <div id="threadsContainer"></div>
     </section>
+</main>
     <footer>
         <p>&copy; 2025 BasicForum - All rights reserved | <a rel="stylesheet" href="privacypolicy.html" target="_blank">Privacy Policy</a> | <a href="termsofservice.html" target="_blank">Terms of Service</a></p>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Återanvänder projektets Supabase-uppgifter (som är i settings.html)
+        const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUsername = 'Anonymous';
+
+        // Hämtar usernamet från den aktuella sessionen
+        async function fetchUsername(userId) {
+            try {
+                const { data: { user } } = await client.auth.getUser();
+                console.log('fetchUsername: user =', user);
+                if (!user) {
+                    currentUsername = 'Anonymous';
+                    return;
+                }
+                // Försöker att hämta usernamet från profiles table
+                const { data: profile, error } = await client
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', user.id)
+                    .single();
+                console.log('fetchUsername: profile lookup =', { profile, error });
+                if (profile && profile.username) {
+                    currentUsername = profile.username;
+                    console.log('fetchUsername: set username to', currentUsername);
+                } else {
+                    // Använder  email om usernamet inte hittas.
+                    currentUsername = user.email ? user.email.split('@')[0] : 'Anonymous';
+                    console.log('fetchUsername: no profile username, fallback to', currentUsername);
+                }
+            } catch (ex) {
+                console.error('Error fetching username:', ex);
+                currentUsername = 'Anonymous';
+            }
+        }
+
+        // Simple init: hämtar usernamet en gång.
+        async function initializeAuth() {
+            const { data: { user } } = await client.auth.getUser();
+            console.log('initializeAuth: user =', user);
+            if (user) {
+                await fetchUsername(user.id);
+            } else {
+                currentUsername = 'Anonymous';
+            }
+        }
+
+        // Laddar threads när sidan laddar in
+        async function loadThreads() {
+            try {
+                console.log('loadThreads: start');
+                const { data: threads, error } = await client
+                    .from('threads')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading threads:', error);
+                    alert('Error loading threads: ' + (error.message || JSON.stringify(error)));
+                    return;
+                }
+
+                const container = document.getElementById('threadsContainer');
+                container.innerHTML = '';
+                console.log('loadThreads: got', threads ? threads.length : 0, 'threads');
+                (threads || []).forEach(thread => displayThread(thread));
+                
+                // Update thread count
+                document.getElementById('threadCount').textContent = threads ? threads.length : 0;
+                
+                // Count total comments
+                if (threads && threads.length > 0) {
+                    const { count: commentCount } = await client
+                        .from('comments')
+                        .select('*', { count: 'exact', head: true });
+                    document.getElementById('commentCount').textContent = commentCount || 0;
+                }
+            } catch (ex) {
+                console.error('loadThreads exception:', ex);
+                alert('Unexpected error loading threads: ' + (ex && ex.message));
+            }
+        }
+
+        // Skapar en ny thread
+        async function createThread() {
+            const btn = document.getElementById('createThreadBtn');
+            try {
+                const titleEl = document.getElementById('threadTitle');
+                const descEl = document.getElementById('threadDescription');
+                const title = (titleEl && titleEl.value || '').trim();
+                const description = (descEl && descEl.value || '').trim();
+
+                console.log('createThread: clicked', { title, description });
+
+                if (!title || !description) {
+                    alert('Please fill out both fields.');
+                    return;
+                }
+
+                if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+
+                console.log('createThread: about to insert with username =', currentUsername);
+                const { data, error } = await client
+                    .from('threads')
+                    .insert([{ title, description, username: currentUsername }])
+                    .select();
+
+                console.log('createThread: full response', { data, error });
+
+                if (error) {
+                    console.error('Error creating thread:', error);
+                    alert('Failed to create thread: ' + (error.message || JSON.stringify(error)));
+                } else if (!data || (Array.isArray(data) && data.length === 0)) {
+                    console.error('createThread: insert returned empty/null data', data);
+                    alert('Thread creation did not return a row. This usually means RLS policies blocked the insert or the table has no RETURNING clause. Check Supabase settings.');
+                } else {
+                    const created = Array.isArray(data) ? data[0] : data;
+                    console.log('createThread: created', created);
+                    displayThread(created);
+                    if (titleEl) titleEl.value = '';
+                    if (descEl) descEl.value = '';
+                }
+            } catch (ex) {
+                console.error('createThread exception:', ex);
+                alert('Unexpected error creating thread: ' + (ex && ex.message));
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Create Thread'; }
+            }
+        }
+
+        // visar en thread i UI:t
+        function displayThread(thread) {
+            if (!thread) {
+                console.warn('displayThread called with null/undefined thread, skipping');
+                return;
+            }
+            const threadEl = document.createElement('div');
+            threadEl.className = 'thread';
+            threadEl.style.border = '1px solid #eee';
+            threadEl.style.padding = '12px';
+            threadEl.style.borderRadius = '8px';
+            threadEl.style.marginBottom = '12px';
+
+            const title = document.createElement('h4');
+            title.textContent = thread.title;
+            
+            const author = document.createElement('small');
+            author.style.color = '#666';
+            author.textContent = 'by ' + (thread.username || 'Anonymous');
+            
+            const desc = document.createElement('p');
+            desc.textContent = thread.description;
+
+            const textarea = document.createElement('textarea');
+            textarea.rows = 2;
+            textarea.placeholder = 'Add a comment...';
+            textarea.style.width = '100%';
+            textarea.style.marginTop = '8px';
+
+            const commentBtn = document.createElement('button');
+            commentBtn.className = 'chat-button';
+            commentBtn.textContent = 'Comment';
+            commentBtn.style.marginTop = '8px';
+
+            const commentsDiv = document.createElement('div');
+            commentsDiv.className = 'comments';
+            commentsDiv.style.marginTop = '8px';
+
+            // bygger ihop thread-elementet
+            threadEl.appendChild(title);
+            threadEl.appendChild(author);
+            threadEl.appendChild(desc);
+            threadEl.appendChild(textarea);
+            threadEl.appendChild(commentsDiv);
+            threadEl.appendChild(commentBtn);
+
+            // threadens kommentarsknapp
+            commentBtn.addEventListener('click', () => addComment(textarea, thread.id, commentsDiv));
+
+            document.getElementById('threadsContainer').appendChild(threadEl);
+
+            // eventuellt laddar befintliga kommentarer
+            loadComments(thread.id, commentsDiv).catch(console.error);
+        }
+
+        // laddar kommentarer för en thread
+        async function loadComments(threadId, container) {
+            try {
+                const { data: comments, error } = await client
+                    .from('comments')
+                    .select('*')
+                    .eq('thread_id', threadId)
+                    .order('id', { ascending: true });
+                if (error) {
+                    console.error('Error loading comments:', error);
+                    return;
+                }
+                container.innerHTML = '';
+                (comments || []).forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.style.padding = '6px 0';
+                    
+                    const author = document.createElement('small');
+                    author.style.color = '#999';
+                    author.style.display = 'block';
+                    author.textContent = c.username || 'Anonymous';
+                    
+                    const content = document.createElement('div');
+                    content.textContent = c.content;
+                    
+                    div.appendChild(author);
+                    div.appendChild(content);
+                    container.appendChild(div);
+                });
+            } catch (ex) {
+                console.error('loadComments exception:', ex);
+            }
+        }
+
+        // Lägger till en kommentar till en thread
+        async function addComment(textarea, threadId, commentsDiv) {
+            try {
+                const commentText = (textarea && textarea.value || '').trim();
+                console.log('addComment:', { threadId, commentText });
+                if (!commentText) {
+                    alert('Please enter a comment.');
+                    return;
+                }
+
+                const { data, error } = await client
+                    .from('comments')
+                    .insert([{ thread_id: threadId, content: commentText, username: currentUsername }])
+                    .select();
+
+                if (error) {
+                    console.error('Error adding comment:', error);
+                    alert('Failed to add comment: ' + (error.message || JSON.stringify(error)));
+                } else {
+                    const created = Array.isArray(data) ? data[0] : data;
+                    // Även om data är null, visas kommentaren som skickades.
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.style.padding = '6px 0';
+                    
+                    const author = document.createElement('small');
+                    author.style.color = '#999';
+                    author.style.display = 'block';
+                    author.textContent = (created && created.username) || currentUsername;
+                    
+                    const content = document.createElement('div');
+                    content.textContent = (created && created.content) || commentText;
+                    
+                    div.appendChild(author);
+                    div.appendChild(content);
+                    commentsDiv.appendChild(div);
+                    if (textarea) textarea.value = '';
+                }
+            } catch (ex) {
+                console.error('addComment exception:', ex);
+                alert('Unexpected error adding comment: ' + (ex && ex.message));
+            }
+        }
+
+        const createBtn = document.getElementById('createThreadBtn');
+        if (!createBtn) console.error('createThreadBtn not found');
+        else createBtn.addEventListener('click', createThread);
+
+        console.log('Supabase client initialized?', !!client);
+
+        // Initierar autentisering och ladda threads.
+        initializeAuth().then(() => {
+            console.log('initializeAuth complete, currentUsername =', currentUsername);
+            loadThreads().catch(ex => console.error('loadThreads top-level error:', ex));
+        });
+    </script>
 </body>
 </html>
