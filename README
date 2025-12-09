@@ -1,0 +1,20 @@
+Rapport
+
+Webbsidan vi har byggt är ett forum där användare kan diskutera olika ämnen och dela information.
+Syftet med sidan är att skapa en plats där människor kan ställa frågor, få svar och hjälpa varandra.
+
+För att bygga webbsidan följde vi några steg. Först planerade vi hur sidan skulle se ut och fungera. 
+Vi valde att använda HTML, CSS och JavaScript för att bygga sidan, och Supabase för att spara data och hantera användare.
+
+När vi började utveckla sidan skapade vi först grunderna med HTML. Sedan använde vi CSS för att styla sidan.
+Med JavaScript gjorde vi sidan interaktiv, så användare kan skapa threads och kommentera.
+
+Vi stötte på problem när vi skulle göra så att data sparas på Supabase, som vi löste genom att kolla på olika guides.
+
+Vi uppnådde nästan vårat önskade resultat vi hann inte rikigt med att göra klart inställningar webbsidan, annars blev det som vi ville.
+
+Ja, göra klart inställningar webbsidan, men också utveckla threads delen och göra den mer avancerad, med bl.a olika kategorier etc.
+
+Vi har använt oss av olika forums bl.a Flashback.
+
+Samarbetet fungerade bra i gruppen, vi jobbade på olika filer för att hinna med så mycket som möjligt, även om vi inte rikigt hann klart med allt.

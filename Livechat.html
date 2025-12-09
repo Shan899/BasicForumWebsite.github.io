@@ -302,12 +302,54 @@
         }
 
         @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+                nav ul {
+                flex-direction: column;
+                gap: 1rem;
+                }
+
+            nav a {
+                padding: 0.5rem;
+                font-size: 1rem;
+            }
+
             main {
                 padding: 0 1rem;
             }
 
             .chat-container {
                 height: 80vh;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            #messageInput {
+                font-size: 0.9rem;
+            }
+
+            #sendBtn,
+            #emojiBtn {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+
+            #emojiPicker {
+                width: 100%;
+                height: auto;
+            }
+
+            .category-btn {
+                font-size: 1rem;
             }
         }
     </style>
