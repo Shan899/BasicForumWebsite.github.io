@@ -229,7 +229,7 @@
     </style>
 </head>
 <body>
-
+    <!-- Header/Navigations bar -->
 <header>
     <div class="header-content">
         <a href="Forum.html" class="logo">BasicForum</a>
@@ -245,11 +245,13 @@
 </header>
 
 <main>
+    <!-- Titel med en underbeskrivning. -->
     <div class="hero">
         <h1>Welcome to BasicForum</h1>
         <p>A place where you can discuss anything.</p>
     </div>
-
+    
+    <!-- Visar statistiken för hur många threads och kommentarer som finns. -->
     <div class="forum-grid">
         <div class="forum-sidebar">
             <h3>Current Stats</h3>
@@ -259,6 +261,7 @@
             </div>
         </div>
 
+        <!-- Visar "starta en ny diskussion boxen". -->
         <div class="forum-main">
             <h2 style="margin-top: 0; color: #333;">Start a New Discussion</h2>
             <input type="text" id="threadTitle" placeholder="Thread Title" required style="width:100%;padding:0.75rem;margin:0.5rem 0;border-radius:8px;border:1px solid #ddd;">
@@ -267,6 +270,7 @@
         </div>
     </div>
 
+        <!-- Visar alla diskussioner. -->
     <section style="background: rgba(255, 255, 255, 0.95);">
         <h2 style="color: #333; margin-top: 0;">Latest Discussions</h2>
         <div id="threadsContainer"></div>
@@ -277,9 +281,11 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Skapar en Supabase-klient för att få åtkomst till databasen med en API-nyckel.
+        // Supabase URL och Anon Key.
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
+
+        // Skapar en Supabase-klient.
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUsername = 'Anonymous';
@@ -325,7 +331,7 @@
             }
         }
 
-        // Laddar threads när sidan laddar in
+        // Laddar alla threads när sidan laddar in
         async function loadThreads() {
             try {
                 console.log('loadThreads: start');

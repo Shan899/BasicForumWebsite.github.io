@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -356,6 +355,7 @@
 </head>
 
 <body>
+    <!-- Header och navigationsbar. -->
     <header>
         <div class="header-content">
            <a href="Forum.html"class="logo">BasicForum</a>
@@ -369,6 +369,7 @@
         </div>
     </header>
 
+    <!-- Huvudinnehåll för livechatt. -->
     <main>
         <div class="chat-container">
             <div class="chat-header">
@@ -397,16 +398,21 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>&copy; 2025 BasicForum - All rights reserved | <a rel="stylesheet" href="privacypolicy.html" target="_blank">Privacy Policy</a> | <a href="termsofservice.html" target="_blank">Terms of Service</a></p>
     </footer>
 
+    <!-- Supabase och chattfunktionalitet -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Supabase URL och Anon Key.
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
+        // Skapar en Supabase-klient.
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Hämtar DOM-element.
         const messagesContainer = document.getElementById('messages');
         const messageForm = document.getElementById('messageForm');
         const messageInput = document.getElementById('messageInput');
@@ -418,22 +424,26 @@
         const profilesCache = new Map();
         const SCROLL_THRESHOLD = 50;
 
+        // Kollar om användaren är inloggad och hämtar användar-ID.
         function isScrolledToBottom() {
             const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
             return (scrollHeight - scrollTop - clientHeight) < SCROLL_THRESHOLD;
         }
 
+        // Hämtar användarprofil från cache eller databas.
         async function getProfile(userId) {
             if (profilesCache.has(userId)) {
                 return profilesCache.get(userId);
             }
 
+            // Hämtar profil från databasen.
             const { data, error } = await client
                 .from('profiles')
                 .select('username, avatar_url')
                 .eq('id', userId)
                 .single();
 
+            // Hanterar eventuella fel vid hämtning av profil
             if (data) {
                 profilesCache.set(userId, data);
                 return data;
@@ -442,6 +452,7 @@
             return { username: 'User (' + userId.substring(0, 4) + '...)', avatar_url: null };
         }
 
+        // Visar innehåll med klickbara länkar.
         function formatContentWithLinks(text) {
             const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return text.replace(urlRegex, (url) => {
@@ -449,15 +460,18 @@
             });
         }
 
+        // Skapar och lägger till ett meddelande i chatten.
         async function createMessageElement(message) {
             const shouldScroll = isScrolledToBottom();
 
+            // Kollar om meddelandet är skickat av den nuvarande användaren.
             const isSent = message.user_id === currentUserId;
             const profile = await getProfile(message.user_id);
 
             const messageEl = document.createElement('div');
             messageEl.classList.add('message', isSent ? 'sent' : 'received');
 
+            // Visar tid och datum för meddelandet.
             const date = new Date(message.created_at);
             const dateString = date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
             const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -465,6 +479,7 @@
 
             const formattedContent = formatContentWithLinks(message.content);
 
+            // Bygger meddelandeelementet.
             messageEl.innerHTML = `
                 <span class="message-username">${profile.username}</span> 
                 <p>${formattedContent}</p>
@@ -473,11 +488,13 @@
 
             messagesContainer.appendChild(messageEl);
 
+            // Scrollar till botten.
             if (shouldScroll) {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }
 
+        // Laddar initiala meddelanden från databasen.
         async function loadInitialMessages() {
             const { data: messages, error } = await client
                 .from('messages')
@@ -494,6 +511,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
+        // Gör så att webbsidan kan ta emot och visa nya meddelanden i realtid.
         function subscribeToNewMessages() {
             client
                 .channel('global-chat-room')
@@ -507,6 +525,7 @@
                 .subscribe();
         }
 
+        // Hanterar inloggning och hämtar användar-ID.
         async function handleNewMessage(e) {
             e.preventDefault();
             const content = messageInput.value.trim();
@@ -525,6 +544,7 @@
             }
         }
 
+        // Emoji picker funktion.
         const emojiCategories = {
             smileys: ['😀', '😂', '😍', '🤔', '😎', '😭', '🥳', '🤯', '😊', '😁', '🤣', '😅', '😇', '😉', '😌', '😘', '😋', '😜', '🤪', '🤨', '🧐', '🤓', '😷', '🥵', '🥶', '😵', '😴', '💩', '😈', '💀'],
             people: ['👋', '🤚', '👍', '👎', '❤️', '🙏', '🧑', '👨', '👩', '👶', '👴', '👵', '👮', '👷', '🧑‍⚕️', '🧑‍🎓', '🧑‍🏫', '🧑‍🌾', '🧑‍🍳', '🧑‍🏭', '🧑‍💻', '💪', '🤝', '👂', '👃', '🦶', '👀', '🧠'],
@@ -535,6 +555,7 @@
 
         let activeCategory = 'smileys';
 
+        // Fyller emoji-väljaren med emojis från vald kategori.
         function populateEmojiPicker(category) {
             emojiGrid.innerHTML = '';
             const emojis = emojiCategories[category] || emojiCategories.smileys;
@@ -549,6 +570,7 @@
             activeCategory = category;
         }
 
+        // Växlar visningen av emoji-väljaren.
         function toggleEmojiPicker() {
             emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex';
             if (emojiPicker.style.display === 'flex') {
@@ -565,6 +587,7 @@
             }
         }
 
+        // Lägger till vald emoji i meddelandet.
         function selectEmoji(emoji) {
             const start = messageInput.selectionStart;
             const end = messageInput.selectionEnd;
@@ -578,6 +601,7 @@
             messageInput.focus();
         }
 
+        // Hanterar klick på kategori-flikar.
         function handleCategoryClick(event) {
             const button = event.target.closest('.category-btn');
             if (!button) return;
@@ -589,6 +613,7 @@
             button.classList.add('active');
         }
 
+        // Startar chatten.
         async function init() {
             const { data: { user } } = await client.auth.getUser();
 
@@ -619,6 +644,7 @@
             });
         }
 
+        // Loggar ut användaren.
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             await client.auth.signOut();

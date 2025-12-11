@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -466,6 +465,7 @@
 
 <body>
     <header>
+        <!-- Header/navigationsbar. -->
     <div class="header-content">
         <a href="Forum.html" class="logo">BasicForum</a>
         <nav>
@@ -479,6 +479,7 @@
 </header>
 
 
+    <!-- Main content för inställningssidan -->
     <main>
         <div class="settings-container">
             <aside class="sidebar">
@@ -491,6 +492,7 @@
                     </div>
                 </div>
 
+                <!-- Sidomeny för inställningar -->
                 <ul class="sidebar-nav">
                     <li><a href="#" class="active" data-tab="profile"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="#" data-tab="security"><i class="fas fa-shield-alt"></i> Security</a></li>
@@ -500,11 +502,13 @@
                 </ul>
             </aside>
 
+            <!-- Inställningsinnehåll -->
             <div class="settings-content">
                 <div class="settings-header">
                     <h1><i class="fas fa-user-cog"></i> Account Settings</h1>
                 </div>
 
+                <!-- Flikar för olika inställningskategorier -->
                 <div class="settings-tabs">
                     <button class="tab-btn active" data-tab="profile">Profile</button>
                     <button class="tab-btn" data-tab="security">Security</button>
@@ -513,6 +517,7 @@
                     <button class="tab-btn" data-tab="account">Account</button>
                 </div>
 
+                <!-- Profilinnehåll för profilinställningar -->
                 <div id="profile-tab" class="tab-content active">
                     <div class="settings-card">
                         <h3><i class="fas fa-edit"></i> Edit Profile</h3>
@@ -540,6 +545,7 @@
                         </form>
                     </div>
 
+                    <!-- Användarstatistik -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-number">127</div>
@@ -556,6 +562,7 @@
                     </div>
                 </div>
 
+                <!-- Säkerhetsinnehåll för säkerhetsinställningar -->
                 <div id="security-tab" class="tab-content">
                     <div class="settings-card">
                         <h3><i class="fas fa-key"></i> Change Password</h3>
@@ -577,6 +584,7 @@
                     </div>
                 </div>
 
+                <!-- Notifikationsinnehåll för notifikationsinställningar -->
                 <div id="notifications-tab" class="tab-content">
                     <div class="settings-card">
                         <h3><i class="fas fa-bell"></i> Notification Preferences</h3>
@@ -597,6 +605,7 @@
                             </label>
                         </div>
 
+                        <!-- notifikations setting -->
                         <div class="notification-item">
                             <span>Message alerts</span>
                             <label class="switch">
@@ -607,6 +616,7 @@
                     </div>
                 </div>
 
+                <!-- Integritetsinnehåll för sekretessinställningar -->
                 <div id="privacy-tab" class="tab-content">
                     <div class="settings-card">
                         <h3><i class="fas fa-lock"></i> Privacy Settings</h3>
@@ -624,6 +634,7 @@
                     </div>
                 </div>
 
+                <!-- Kontoinnehåll för kontohantering -->
                 <div id="account-tab" class="tab-content">
                     <div class="settings-card">
                         <h3><i class="fas fa-cog"></i> Account Management</h3>
@@ -637,16 +648,20 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>&copy; 2025 BasicForum - All rights reserved | <a rel="stylesheet" href="privacypolicy.html" target="_blank">Privacy Policy</a> | <a href="termsofservice.html" target="_blank">Terms of Service</a></p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Supabse URL och Anon Key.
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
+        // Skapar en Supabase-klient.
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Hanterar flikbyten.
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tab = btn.dataset.tab;
@@ -662,6 +677,7 @@
             });
         });
 
+        // Kollar om användaren är inloggad och laddar profilinformationen.
         async function checkUser() {
             const { data: { user } } = await client.auth.getUser();
             if (!user) {
@@ -673,6 +689,7 @@
             await loadProfile(user.id);
         }
 
+        // Laddar användarens profilinformation från databasen.
         async function loadProfile(userId) {
             const { data, error } = await client.from("profiles").select("*").eq("id", userId).single();
             if (data) {
@@ -685,6 +702,7 @@
             }
         }
 
+        // Hanterar utloggning.
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             await client.auth.signOut();
@@ -692,6 +710,7 @@
             window.location.href = 'login.html';
         });
 
+        // Hanterar profilformulärets submit-händelse.
         document.getElementById("profileForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const username = document.getElementById("username").value.trim();
@@ -701,6 +720,7 @@
 
             let avatar_url = null;
 
+            // Om en ny profilbild har valts, laddas den upp till Supabase Storage.
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const filePath = `public/${user.id}-${Date.now()}-${file.name}`;
@@ -718,6 +738,7 @@
             else alert("Profile updated successfully!");
         });
 
+        // Hanterar lösenordsändringsformulärets submit-händelse.
         document.getElementById("passwordForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const currentPassword = document.getElementById("currentPassword").value;
@@ -740,6 +761,7 @@
 
         checkUser();
 
+        // Initial visning av flikinnehåll.
         document.querySelectorAll('.tab-content').forEach(content => {
             if (content.classList.contains('active')) {
                 content.style.display = 'block';

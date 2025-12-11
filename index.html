@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -81,6 +80,7 @@
 </head>
 
 <body>
+    <!-- Registreringsformulär -->
     <h2>Create an Account</h2>
     <form id="registerForm">
         <input type="text" id="username" placeholder="Username" required />
@@ -89,21 +89,26 @@
         <button type="submit">Register</button>
         <p class="agree">By registering an account you agree to our <a rel="stylesheet" href="termsofservice.html" target="_blank">Terms of Service.</a></p>
     </form>
+    <!-- Länk för inloggning för användare som redan har ett konto -->
     <p>Already have an account? <a href="login.html">Login here</a></p>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
+        // Supabase URL och Anon Key.
         const SUPABASE_URL = "https://rhuqgpvdclyqtsvzuntd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXFncHZkY2x5cXRzdnp1bnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDc2ODIsImV4cCI6MjA3NjE4MzY4Mn0.2PgebCbdL15ozvDy91DP5D7tMDGxt3piYA3afAuwrxU";
 
+        // Skapar en Supabase-klient.
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Hämtar registreringsformuläret
         const form = document.getElementById("registerForm");
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            // Hämtar inmatningsvärden.
             const username = document.getElementById("username").value.trim();
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
@@ -113,24 +118,29 @@
                 return;
             }
 
+            // Registrerar användaren med Supabase Auth.
             const { data, error } = await supabase.auth.signUp({ email, password });
 
+            // Hanterar eventuella fel vid registrering
             if (error) {
                 console.error("Sign-up error:", error);
                 alert("Sign-up failed: " + error.message);
                 return;
             }
 
+            // Hämtar användaren.
             const user = data.user;
             if (!user) {
                 alert("Unexpected error: No user returned from Supabase.");
                 return;
             }
 
+            // Sparar användarnamn i databasen
             const { error: insertError } = await supabase
                 .from("profiles")
                 .insert([{ id: user.id, username }]);
 
+            // Hanterar eventuella fel vid insättning av användarnamn
             if (insertError) {
                 console.error("Profile insert error:", insertError);
                 alert("Error saving username: " + insertError.message);
